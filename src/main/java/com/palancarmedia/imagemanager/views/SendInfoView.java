@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -118,7 +116,6 @@ public class SendInfoView {
 					HttpResponse response;
 					try {
 						
-						logger.debug(url.toString());
 						req = new HttpGet(url.toString());
 						req.addHeader("content-type", "text/xml");
 						response = client.execute(req);

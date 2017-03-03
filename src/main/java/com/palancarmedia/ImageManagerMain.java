@@ -17,6 +17,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import com.palancarmedia.imagemanager.views.ImageViewerView;
 import com.palancarmedia.imagemanager.views.SendInfoView;
 
 public class ImageManagerMain extends JFrame implements ActionListener 
@@ -35,7 +36,7 @@ public class ImageManagerMain extends JFrame implements ActionListener
         //setBounds(inset, inset,
         //          screenSize.width  - inset*2,
         //          screenSize.height - inset*2);
-        setBounds(inset, inset, 850, 750);
+        setBounds(inset, inset, 1050, 850);
  
         //Set up the GUI.
         desktop = new JDesktopPane(); //a specialized layered pane
@@ -54,6 +55,9 @@ public class ImageManagerMain extends JFrame implements ActionListener
 		JMenu menu = new JMenu("File");
 		menuBar.add(menu);
 		
+		JMenu imgMenu = new JMenu("Image Management");
+		menuBar.add(imgMenu);
+		
 		JMenuItem menuItem = new JMenuItem("Send All...");
 	    menuItem.setActionCommand("sendall");
 	    menuItem.addActionListener(this);
@@ -67,7 +71,28 @@ public class ImageManagerMain extends JFrame implements ActionListener
         menuItem.addActionListener(this);
         menu.add(menuItem);
         
+        menuItem = new JMenuItem("Manage images");
+        menuItem.setActionCommand("manageimages");
+	    menuItem.addActionListener(this);
+	    imgMenu.add(menuItem);
+        
+        
 		return menuBar;
+	}
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		if ("exit".equals(e.getActionCommand())) {
+			quit();
+		} 
+		else if ("sendall".equals(e.getActionCommand())) {
+			createSendAllView();
+		}
+		else if ("manageimages".equals(e.getActionCommand())) {
+			createManageImagesView();
+		}
+		
 	}
 	
 	//Create a new internal frame.
@@ -76,6 +101,11 @@ public class ImageManagerMain extends JFrame implements ActionListener
     	SendInfoView siv = new SendInfoView();
     	desktop.add(siv.createView());
     	
+    }
+    
+    protected void createManageImagesView() {
+    	ImageViewerView ivv = new ImageViewerView();
+    	desktop.add(ivv.createView());
     }
 	
 	//Quit the application.
@@ -112,15 +142,5 @@ public class ImageManagerMain extends JFrame implements ActionListener
         });
     }
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		
-		if ("exit".equals(e.getActionCommand())) {
-			quit();
-		} 
-		else if ("sendall".equals(e.getActionCommand())) {
-			createSendAllView();
-		}
-		
-	}
+	
 }
