@@ -22,6 +22,7 @@ import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -42,9 +43,12 @@ import javax.swing.tree.TreeSelectionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
 public class ImageViewerView {
 	
 	private final static Logger logger = LoggerFactory.getLogger(SendInfoView.class);
+	int selectedRowIndex=0;
 	
 	public JInternalFrame createView() {
 		
@@ -157,27 +161,37 @@ public class ImageViewerView {
 	 //	jsp.setPreferredSize(new Dimension(300,300));
         fileListPanel.add(jsp);
         
+        int rowSelected=0;
+        
         table.addKeyListener(new KeyAdapter() {
         	@Override
             public void keyPressed(KeyEvent e) {
-        		ListSelectionModel lsm = (ListSelectionModel)e.getSource();
         		
-        		System.out.println(e.getKeyCode());
-        		if(e.getKeyCode()==KeyEvent.VK_ENTER) {
-        			System.out.println("enter");
+        		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        		        		
+        		JTable t = (JTable)e.getSource();
+        		DefaultTableModel tm = (DefaultTableModel) t.getModel();
+            	Object fn = tm.getValueAt(selectedRowIndex, 0);
+                Object p = tm.getValueAt(selectedRowIndex, 2);
+                
+                if (e.getKeyCode()==KeyEvent.VK_DELETE) {
+                	         	
+                    System.out.println("Row " + selectedRowIndex
+                                       + " is now selected, file name " +   p.toString() + "\\" + fn.toString() + " will be deleted");
+                    tm.removeRow(selectedRowIndex);
+                    File iFile = new File(p.toString() + "\\" + fn.toString());
+                    iFile.delete();
+                    
+                }
+                else if(e.getKeyCode()==KeyEvent.VK_ENTER) {
         			
-        			 if (lsm.isSelectionEmpty()) {
-                         System.out.println("No rows are selected.");
-                     } else {
-                         int selectedRow = lsm.getMinSelectionIndex();
-                         
-                         TableModel tm = (DefaultTableModel) table.getModel();
-                         Object fn = tm.getValueAt(selectedRow, 0);
-                         Object p = tm.getValueAt(selectedRow, 2);
-                         
-                         System.out.println("Row " + selectedRow
-                                            + " is now selected, file name is " +   p.toString() + "\\" + fn.toString());
-                     }
+                	JDesktopPane dsk = (JDesktopPane)frame.getParent();
+                	ImageViewer vw = new ImageViewer();
+                	vw.setImagePath(p.toString() + "\\" + fn.toString());
+                	dsk.add(vw.createView());
+                	
+        			System.out.println("Row " + selectedRowIndex
+                            + " is now selected, file name " +   p.toString() + "\\" + fn.toString() + " will be displayed");
         		}
             }
         });
@@ -196,6 +210,8 @@ public class ImageViewerView {
                         System.out.println("No rows are selected.");
                     } else {
                         int selectedRow = lsm.getMinSelectionIndex();
+                        System.out.println("selectedRow: " + selectedRow);
+                        selectedRowIndex = selectedRow;
                         
                         TableModel tm = (DefaultTableModel) table.getModel();
                         Object fn = tm.getValueAt(selectedRow, 0);
@@ -212,14 +228,15 @@ public class ImageViewerView {
 							Image resizedImage = img.getScaledInstance(jsp.getWidth(), jsp.getHeight(), Image.SCALE_SMOOTH);
 							if (resizedImage != null) {
 		                        imgLbl = new JLabel(new ImageIcon(resizedImage));
+		                       
 		                        if (jsp.getComponentCount() > 0)
 		                        	jsp.removeAll();
 		                        
 		                        jsp.add(imgLbl);
 							}
 						} catch (IOException e1) {
-							
-							e1.printStackTrace();
+							logger.debug("Not an image file");
+							//e1.printStackTrace();
 						}
                                   	
                         frame.pack();
