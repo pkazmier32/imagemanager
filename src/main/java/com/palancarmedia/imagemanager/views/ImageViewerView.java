@@ -6,10 +6,14 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -25,11 +29,15 @@ import javax.swing.ImageIcon;
 import javax.swing.JDesktopPane;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
@@ -49,6 +57,9 @@ public class ImageViewerView {
 	
 	private final static Logger logger = LoggerFactory.getLogger(SendInfoView.class);
 	int selectedRowIndex=0;
+	int numberOfRows=0;
+	String currentPath="";
+	JTable table=null;
 	
 	public JInternalFrame createView() {
 		
@@ -57,16 +68,105 @@ public class ImageViewerView {
 	 			   true, // closable
 	 			   true, // maximizable
 	 			   true); // iconifiable
+		
+		boolean ALLOW_ROW_SELECTION = true;
 		 	
 	    frame.setBounds(10, 10, 900, 1050);
 	 	frame.setVisible(true); //necessary as of 1.3
 	 	Container c = frame.getContentPane();
 	 	c.setLayout(new BorderLayout());
 	 	
+	 	
+	 	Vector<String> columns = new Vector<String>();
+	 	columns.add("File Name");
+	 	columns.add("Size");
+	 	
 	 	JPanel treePanel = new JPanel();
 	 	
-	 	boolean ALLOW_ROW_SELECTION = true;
+	 	JMenuBar menuBar = new JMenuBar();
+		
+		JMenu renameFiles = new JMenu("File");
+		menuBar.add(renameFiles);
+		
+		JMenuItem menuItem = new JMenuItem("Rename Files");
+        menuItem.setActionCommand("renamefiles");
+        
+        renameFiles.add(menuItem);
+		
+		frame.add(menuBar, BorderLayout.NORTH);
 	 	
+	 	JLabel statusbar = new JLabel(" ");
+	    statusbar.setPreferredSize(new Dimension(-1, 22));
+	    statusbar.setBorder(LineBorder.createGrayLineBorder());
+	    frame.add(statusbar, BorderLayout.SOUTH);
+	    
+        menuItem.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				RenameFilesDlg dlg = new RenameFilesDlg();
+				dlg.setVisible(true);
+				
+				dlg.addWindowListener(new WindowAdapter() {
+					public void windowClosed(WindowEvent e) {
+						//System.out.println("New file name: " + dlg.getNewFilePrefix());
+						
+						if (dlg.getNewFilePrefix() != null && dlg.getNewFilePrefix().length() > 1) {
+							File f = new File(currentPath);
+						 	URI u = f.toURI();
+						 	try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get(u))) {
+						 		int fileNumber=1;
+						 		for (Path file : ds) {
+						 			File fi = new File(currentPath + file.getFileName().toString());
+						 			
+						 			String[] fileParts = fi.getName().toString().split("\\.(?=[^\\.]+$)");
+						 			String fileExt = fileParts[1];
+						 			StringBuilder newFileName = new StringBuilder(dlg.getNewFilePrefix());
+						 			newFileName.append("_").append(fileNumber).append(".").append(fileExt);
+						 			
+						 			File newFile = new File(currentPath + "\\" + newFileName.toString());
+						 			fi.renameTo(newFile);
+						 			fileNumber++;
+						 		}
+						 		
+						 	} catch (Exception ex) {
+						 		System.out.println("File rename exception: " + ex.getLocalizedMessage());
+						 	}
+						 	
+						 	Vector<Vector> rowData = new Vector<Vector>();
+						 	try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get(u))) {
+						 		rowData.clear();
+						 		numberOfRows=0;
+						 		DefaultTableModel tm = (DefaultTableModel) table.getModel();
+					 			for (Path file : ds) {
+						 			File fi = new File(currentPath + file.getFileName().toString());
+						 			
+						 			if (fi.getName().contains(".")) {
+						 				Vector<String> row = new Vector<String>();
+						 				//System.out.println(fi.getName() + " : " + fi.length());
+						 				row.add(fi.getName());
+						 				row.add(String.valueOf(fi.length()).format("%,d%n",fi.length()));
+						 				row.add(currentPath);
+						 				rowData.add(row);
+						 				numberOfRows++;
+						 			}
+						 			
+						 		}
+					 			tm.setDataVector(rowData, columns);
+					 			tm.fireTableDataChanged();
+					 			selectedRowIndex=0;
+						 	} catch (Exception e1) {
+								logger.error(e1.getLocalizedMessage());
+							}
+						 	
+					 		frame.pack();
+						}
+					}
+				});
+			}
+        	
+        });
+        
 	 	DefaultMutableTreeNode root = new DefaultMutableTreeNode("C:\\");
 	 	
 	 	try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("c:\\"), path -> path.toFile().isDirectory())) {
@@ -96,14 +196,16 @@ public class ImageViewerView {
 	 		for (Object o : path.getPath()) {
 	 			sPath.append(o.toString()).append("\\");
 	 		}
-	 		 		
+	 		currentPath = sPath.toString();
 	 		File f = new File(sPath.toString());
 		 	URI u = f.toURI();
 		 			
-	 		logger.debug(sPath.toString());
+	 		//logger.debug(sPath.toString());
 	 		
 	 		try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get(u))) {
 		 		rowData.clear();
+		 		numberOfRows=0;
+		 		DefaultTableModel tm = (DefaultTableModel) table.getModel();
 	 			for (Path file : ds) {
 		 			DefaultMutableTreeNode dirName = new DefaultMutableTreeNode(file.getFileName());
 		 			selectedNode.add(dirName);
@@ -111,14 +213,17 @@ public class ImageViewerView {
 		 			
 		 			if (fi.getName().contains(".")) {
 		 				Vector<String> row = new Vector<String>();
-		 				System.out.println(fi.getName() + " : " + fi.length());
+		 				//System.out.println(fi.getName() + " : " + fi.length());
 		 				row.add(fi.getName());
 		 				row.add(String.valueOf(fi.length()).format("%,d%n",fi.length()));
 		 				row.add(sPath.toString());
 		 				rowData.add(row);
+		 				numberOfRows++;
 		 			}
 		 			
 		 		}
+	 			tm.setDataVector(rowData, columns);
+	 			tm.fireTableDataChanged();
 		 	} catch (Exception e1) {
 				logger.error(e1.getLocalizedMessage());
 			}
@@ -140,24 +245,22 @@ public class ImageViewerView {
 	 	JPanel fileListPanel = new JPanel();
 	 	fileListPanel.setLayout(new GridLayout(2,1));
 	 	
-	 	Vector<String> columns = new Vector<String>();
-	 	columns.add("File Name");
-	 	columns.add("Size");
-	 	
-	 	JTable table = new JTable(rowData, columns);
+	 	//JTable table = new JTable(rowData, columns);
+	 	table = new JTable(rowData, columns);
 		//table.setPreferredScrollableViewportSize(new Dimension(400, 90));
-		table.getColumnModel().getColumn(1).setPreferredWidth(75);
+		table.getColumnModel().getColumn(0).setPreferredWidth(200);
 	    table.setFillsViewportHeight(true);
 	 	
 	 	JScrollPane fileListPane = new JScrollPane(table);
 	    fileListPane.setPreferredSize(new Dimension(550, 200));
 	   
-	    fileListPanel.setPreferredSize(new Dimension(700, 300));
+	    fileListPanel.setPreferredSize(new Dimension(500, 500));
 		
 	    fileListPanel.add(fileListPane);
 		c.add(fileListPanel, BorderLayout.CENTER);
 	 	
 	    JPanel jsp = new JPanel();
+	    jsp.setLayout(null);
 	 //	jsp.setPreferredSize(new Dimension(300,300));
         fileListPanel.add(jsp);
         
@@ -172,26 +275,28 @@ public class ImageViewerView {
         		JTable t = (JTable)e.getSource();
         		DefaultTableModel tm = (DefaultTableModel) t.getModel();
             	Object fn = tm.getValueAt(selectedRowIndex, 0);
-                Object p = tm.getValueAt(selectedRowIndex, 2);
+                //Object p = tm.getValueAt(selectedRowIndex, 2);
                 
                 if (e.getKeyCode()==KeyEvent.VK_DELETE) {
                 	         	
-                    System.out.println("Row " + selectedRowIndex
-                                       + " is now selected, file name " +   p.toString() + "\\" + fn.toString() + " will be deleted");
+                    //System.out.println("Row " + selectedRowIndex
+                    //                   + " is now selected, file name " +   p.toString() + "\\" + fn.toString() + " will be deleted");
+                	
                     tm.removeRow(selectedRowIndex);
-                    File iFile = new File(p.toString() + "\\" + fn.toString());
+                    numberOfRows--;
+                    File iFile = new File(currentPath + "\\" + fn.toString());
                     iFile.delete();
+                    int currImg = selectedRowIndex+1;
+                    statusbar.setText("Image: " + currImg + "/" + numberOfRows);
                     
                 }
                 else if(e.getKeyCode()==KeyEvent.VK_ENTER) {
         			
                 	JDesktopPane dsk = (JDesktopPane)frame.getParent();
                 	ImageViewer vw = new ImageViewer();
-                	vw.setImagePath(p.toString() + "\\" + fn.toString());
+                	vw.setImagePath(currentPath + "\\" + fn.toString());
                 	dsk.add(vw.createView());
                 	
-        			System.out.println("Row " + selectedRowIndex
-                            + " is now selected, file name " +   p.toString() + "\\" + fn.toString() + " will be displayed");
         		}
             }
         });
@@ -210,29 +315,38 @@ public class ImageViewerView {
                         System.out.println("No rows are selected.");
                     } else {
                         int selectedRow = lsm.getMinSelectionIndex();
-                        System.out.println("selectedRow: " + selectedRow);
+                        //System.out.println("selectedRow: " + selectedRow);
                         selectedRowIndex = selectedRow;
                         
                         TableModel tm = (DefaultTableModel) table.getModel();
                         Object fn = tm.getValueAt(selectedRow, 0);
-                        Object p = tm.getValueAt(selectedRow, 2);
                         
-                        System.out.println("Row " + selectedRow
-                                           + " is now selected, file name is " +   p.toString() + "\\" + fn.toString());
+                        //System.out.println("Row " + selectedRow
+                        //                   + " is now selected, file name is " +   currentPath + "\\" + fn.toString());
                         
-                        File iFile = new File(p.toString() + "\\" + fn.toString());
+                        int currImg = selectedRowIndex+1;
+                        statusbar.setText("Image: " + currImg + "/" + numberOfRows);
+                        
+                        File iFile = new File(currentPath + "\\" + fn.toString());
                         Image img;
                         JLabel imgLbl = null;
 						try {
 							img = ImageIO.read(iFile);
-							Image resizedImage = img.getScaledInstance(jsp.getWidth(), jsp.getHeight(), Image.SCALE_SMOOTH);
+							JPanel jp = new JPanel();
+							jp.setPreferredSize(new Dimension(300, 300));
+							jp.setBounds(new Rectangle(100, 5, 295, 295));
+							
+							//Image resizedImage = img.getScaledInstance(jsp.getWidth(), jsp.getHeight(), Image.SCALE_SMOOTH);
+							Image resizedImage = img.getScaledInstance(jp.getWidth(), jp.getHeight(), Image.SCALE_SMOOTH);
 							if (resizedImage != null) {
 		                        imgLbl = new JLabel(new ImageIcon(resizedImage));
 		                       
 		                        if (jsp.getComponentCount() > 0)
 		                        	jsp.removeAll();
 		                        
-		                        jsp.add(imgLbl);
+		                        //jsp.add(imgLbl);
+		                        jp.add(imgLbl);
+		                        jsp.add(jp);
 							}
 						} catch (IOException e1) {
 							logger.debug("Not an image file");
