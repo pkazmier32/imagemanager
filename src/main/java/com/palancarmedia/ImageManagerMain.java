@@ -17,7 +17,9 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import com.palancarmedia.imagemanager.views.ImageViewer;
 import com.palancarmedia.imagemanager.views.ImageViewerView;
+import com.palancarmedia.imagemanager.views.S3ImageViewer;
 import com.palancarmedia.imagemanager.views.SendInfoView;
 
 public class ImageManagerMain extends JFrame implements ActionListener 
@@ -58,6 +60,9 @@ public class ImageManagerMain extends JFrame implements ActionListener
 		JMenu imgMenu = new JMenu("Image Management");
 		menuBar.add(imgMenu);
 		
+		JMenu s3ImageMenu = new JMenu("S3 Images");
+		menuBar.add(s3ImageMenu);
+		
 		JMenuItem menuItem = new JMenuItem("Send All...");
 	    menuItem.setActionCommand("sendall");
 	    menuItem.addActionListener(this);
@@ -75,6 +80,11 @@ public class ImageManagerMain extends JFrame implements ActionListener
         menuItem.setActionCommand("manageimages");
 	    menuItem.addActionListener(this);
 	    imgMenu.add(menuItem);
+	    
+	    menuItem = new JMenuItem("Load Image From S3");
+	    menuItem.setActionCommand("loadImageFromS3");
+	    menuItem.addActionListener(this);
+	    s3ImageMenu.add(menuItem);
         
         
 		return menuBar;
@@ -91,6 +101,14 @@ public class ImageManagerMain extends JFrame implements ActionListener
 		}
 		else if ("manageimages".equals(e.getActionCommand())) {
 			createManageImagesView();
+		}
+		else if ("loadImageFromS3".equals(e.getActionCommand())) {
+			
+        	S3ImageViewer vw = new S3ImageViewer();
+        	vw.setImagePath("CaribCruiseJan2017/DSC_0012.JPG");
+        	desktop.add(vw.createView());
+        	//vw.setImagePath(currentPath + "\\" + fn.toString());
+        	
 		}
 		
 	}
