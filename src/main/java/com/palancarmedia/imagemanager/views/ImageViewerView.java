@@ -208,7 +208,10 @@ public class ImageViewerView {
 		 		DefaultTableModel tm = (DefaultTableModel) table.getModel();
 	 			for (Path file : ds) {
 		 			DefaultMutableTreeNode dirName = new DefaultMutableTreeNode(file.getFileName());
-		 			selectedNode.add(dirName);
+		 			
+		 			if (Files.isDirectory(file))
+		 				selectedNode.add(dirName);
+		 			
 		 			File fi = new File(sPath.toString() + file.getFileName().toString());
 		 			
 		 			if (fi.getName().contains(".")) {

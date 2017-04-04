@@ -18,9 +18,11 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.LineBorder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +77,7 @@ public class SendInfoView {
 	 	             BufferedReader in = new BufferedReader(new FileReader(selectedFile));
 	 	             String line = null;
 	 	             while ((line = in.readLine()) != null) {
-	 	                logger.debug(line);
+	 	                //logger.debug(line);
 	 	                
 	 	                imgItems.add(line);
 	 	                model.addElement(line);
@@ -91,8 +93,10 @@ public class SendInfoView {
 			}
  	    });
 	 	btnPanel.add(btnOpenFileChooser);
+	 	JLabel statusbar = new JLabel(" ");
 	 	
 	 	JButton btnSendAll = new JButton("Send All");
+	 		 	
 	 	btnSendAll.addActionListener(new ActionListener() {
 
 			@Override
@@ -100,12 +104,14 @@ public class SendInfoView {
 				HttpClient client = HttpClientBuilder.create().build();
 				HttpGet req = null;
 				
-				int i=0;
+				int i=1;
 				for (String itm : imgItems) {
+					
 					String[] flds = itm.split(",");
 					StringBuilder url = new StringBuilder("http://www.palancarmediasolutions.com/FitnessLog/AddImageToDb.php?");
-					url.append("modelname=").append(flds[0]);
+					
 					try {
+						url.append("modelname=").append(URLEncoder.encode(flds[0], "UTF-8"));
 						url.append("&series=").append(URLEncoder.encode(flds[1], "UTF-8"));
 					} catch (Exception e) {
 						logger.error(e.getMessage());
@@ -119,8 +125,12 @@ public class SendInfoView {
 						req = new HttpGet(url.toString());
 						req.addHeader("content-type", "text/xml");
 						response = client.execute(req);
+						
 						BufferedReader rd = new BufferedReader (new InputStreamReader(response.getEntity().getContent()));
-						logger.debug("Item["+i+"] response -> "+ response.getStatusLine().getStatusCode());
+						//logger.debug("Item["+i+"] response -> "+ response.getStatusLine().getStatusCode());
+						statusbar.setText("Sent : " + i + "/" + imgItems.size());
+						req.releaseConnection();
+						i++;
 					} catch (Exception e) {
 						logger.error(e.getMessage());
 					}
@@ -133,8 +143,13 @@ public class SendInfoView {
 	 	
 	 	btnPanel.add(btnSendAll);
 	 	
-	 	c.add(itmsPanel, BorderLayout.CENTER);
-	 	c.add(btnPanel, BorderLayout.SOUTH);
+	 	c.add(itmsPanel, BorderLayout.NORTH);
+	 	c.add(btnPanel, BorderLayout.CENTER);
+	 	
+	 	
+	    statusbar.setPreferredSize(new Dimension(-1, 22));
+	    statusbar.setBorder(LineBorder.createGrayLineBorder());
+	    frame.add(statusbar, BorderLayout.SOUTH);
 	    
 	     try {
 	         frame.setSelected(true);
