@@ -314,9 +314,8 @@ public class ImageViewerView {
  
                     ListSelectionModel lsm = (ListSelectionModel)e.getSource();
                     
-                    if (lsm.isSelectionEmpty()) {
-                        System.out.println("No rows are selected.");
-                    } else {
+                    if (!lsm.isSelectionEmpty()) {
+                        
                         int selectedRow = lsm.getMinSelectionIndex();
                         //System.out.println("selectedRow: " + selectedRow);
                         selectedRowIndex = selectedRow;

@@ -17,6 +17,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import com.palancarmedia.imagemanager.views.ImageQueryView;
 import com.palancarmedia.imagemanager.views.ImageViewer;
 import com.palancarmedia.imagemanager.views.ImageViewerView;
 import com.palancarmedia.imagemanager.views.S3ImageViewer;
@@ -35,15 +36,10 @@ public class ImageManagerMain extends JFrame implements ActionListener
         int inset = 50;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         
-        //setBounds(inset, inset,
-        //          screenSize.width  - inset*2,
-        //          screenSize.height - inset*2);
         setBounds(inset, inset, 1050, 850);
  
         //Set up the GUI.
         desktop = new JDesktopPane(); //a specialized layered pane
-        
-        // createFrame(); //create first "window"
         
         setContentPane(desktop);
         setJMenuBar(createMenuBar());
@@ -85,7 +81,11 @@ public class ImageManagerMain extends JFrame implements ActionListener
 	    menuItem.setActionCommand("loadImageFromS3");
 	    menuItem.addActionListener(this);
 	    s3ImageMenu.add(menuItem);
-        
+	    
+	    menuItem = new JMenuItem("Query Images");
+	    menuItem.setActionCommand("queryImages");
+	    menuItem.addActionListener(this);
+	    s3ImageMenu.add(menuItem);
         
 		return menuBar;
 	}
@@ -109,6 +109,10 @@ public class ImageManagerMain extends JFrame implements ActionListener
         	desktop.add(vw.createView());
         	//vw.setImagePath(currentPath + "\\" + fn.toString());
         	
+		}
+		else if ("queryImages".equals(e.getActionCommand())) {
+			ImageQueryView iqv = new ImageQueryView();
+			desktop.add(iqv,0);
 		}
 		
 	}

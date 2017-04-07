@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -42,7 +43,27 @@ public class S3ImageViewer {
 	 	frame.setVisible(true); //necessary as of 1.3
 	 	//frame.setResizable(false);
 	 	
-	 	BasicAWSCredentials creds = new BasicAWSCredentials("AKIAIG43BCYOOESPLKTQ", "Biy4zfEz18CyROnHo0tzNcy2T4srj2yq+Xcj0JDB"); 
+	 	Properties prop = new Properties();
+	 	InputStream input = null;
+	 	String AWSKeyId="";
+	 	String AWSSecretKey="";
+	 	
+	 	String filename = "app.properties";
+		input = S3ImageViewer.class.getClassLoader().getResourceAsStream(filename);
+		if(input==null) {
+	       System.out.println("Sorry, unable to find " + filename);
+		} else {
+			try  {
+			    prop.load(input);
+				AWSKeyId = prop.getProperty("AWSAccessKeyID");
+				AWSSecretKey=prop.getProperty("AWSSecretKey");
+			} catch (Exception ex) {
+				logger.error("Failed to read AWS properties");
+			}
+			
+		}
+	 	
+	 	BasicAWSCredentials creds = new BasicAWSCredentials(AWSKeyId, AWSSecretKey);
 	 	AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).withRegion(Regions.US_EAST_1).build();
 	 	BufferedImage srcImage=null;
 	 	
