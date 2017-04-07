@@ -98,9 +98,14 @@ public class ImageQueryView extends JInternalFrame {
 	 	JComboBox modelList = new JComboBox();
 	 	modelList.addItem("Niemira");
 	 	modelList.addItem("Candice B");
+	 	modelList.addItem("Sofi A");
+	 	modelList.addItem("Ashlynn Letizzia");
+	 	modelList.addItem("MetArt");
+	 	modelList.addItem("Carlotta Champagne");
 	 	modelList.setBounds(10, 15, 125, 25);
 	 	
 	 	JComboBox ratingList = new JComboBox();
+	 	ratingList.addItem("0");
 	 	ratingList.addItem("4");
 	 	ratingList.addItem("5");
 	 	ratingList.addItem("6");
@@ -265,10 +270,10 @@ public class ImageQueryView extends JInternalFrame {
                 
                  if(e.getKeyCode()==KeyEvent.VK_ENTER) {
         			
-                	JDesktopPane dsk = (JDesktopPane)getContentPane().getParent();
-                	S3ImageViewer vw = new S3ImageViewer();
-                	vw.setImagePath(imgkey.toString());
-                	dsk.add(vw.createView());
+                	//JDesktopPane dsk = (JDesktopPane)getContentPane().getParent();
+                	S3ImageViewer vw = new S3ImageViewer(imgkey.toString());
+                	//vw.setImagePath(imgkey.toString());
+                	//dsk.add(vw.createView());
                 	
         		}
             }

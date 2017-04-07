@@ -104,9 +104,10 @@ public class ImageManagerMain extends JFrame implements ActionListener
 		}
 		else if ("loadImageFromS3".equals(e.getActionCommand())) {
 			
-        	S3ImageViewer vw = new S3ImageViewer();
-        	vw.setImagePath("CaribCruiseJan2017/DSC_0012.JPG");
-        	desktop.add(vw.createView());
+        	//S3ImageViewer vw = new S3ImageViewer();
+        	//vw.setImagePath("CaribCruiseJan2017/DSC_0012.JPG");
+			S3ImageViewer vw = new S3ImageViewer("CaribCruiseJan2017/DSC_0012.JPG");
+        	//desktop.add(vw.createView());
         	//vw.setImagePath(currentPath + "\\" + fn.toString());
         	
 		}

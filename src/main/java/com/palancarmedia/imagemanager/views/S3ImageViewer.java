@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,22 +28,14 @@ import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 
 
-public class S3ImageViewer {
+public class S3ImageViewer extends JDialog {
 	
-	String imagePath="";
+	//String imagePath="";
 	private final static Logger logger = LoggerFactory.getLogger(S3ImageViewer.class);
+	JPanel imgPanel = new JPanel();
+	
+	public S3ImageViewer(String imagePath) {
 		
-	public JInternalFrame createView() {
-		JInternalFrame frame = new JInternalFrame("S3 Image Viewer",
-	 			   true, // resizable
-	 			   true, // closable
-	 			   true, // maximizable
-	 			   true); // iconifiable
-		 	
-	    frame.setBounds(10, 10, 1000, 650);
-	 	frame.setVisible(true); //necessary as of 1.3
-	 	//frame.setResizable(false);
-	 	
 	 	Properties prop = new Properties();
 	 	InputStream input = null;
 	 	String AWSKeyId="";
@@ -67,7 +60,7 @@ public class S3ImageViewer {
 	 	AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).withRegion(Regions.US_EAST_1).build();
 	 	BufferedImage srcImage=null;
 	 	
-	    S3Object s3Object = s3Client.getObject(new GetObjectRequest("PKazPhotoBackup", this.imagePath));
+	    S3Object s3Object = s3Client.getObject(new GetObjectRequest("PKazPhotoBackup", imagePath));
 	    InputStream objectData = s3Object.getObjectContent();
 
 	    // Read the source image
@@ -78,17 +71,7 @@ public class S3ImageViewer {
 			e1.printStackTrace();
 		}
 	 	
-	 	try {
-			frame.setSelected(true);
-		} catch (PropertyVetoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	 	Container c = frame.getContentPane();
-	 	
-	 	JPanel imgPanel = new JPanel();
-	 	
-	 	if (this.imagePath != null || this.imagePath.length() > 1) {
+	 	if (imagePath != null || imagePath.length() > 1) {
 	 		//ImageIcon ii = new ImageIcon(this.imagePath);
 	 		ImageIcon ii = new ImageIcon(srcImage);
 	 		JScrollPane jsp = new JScrollPane(new JLabel(ii));
@@ -96,14 +79,16 @@ public class S3ImageViewer {
 	 		imgPanel.add(jsp);
 	 	}
 	 	
-	    frame.add(imgPanel);
-	    frame.setLayer(0);
-	 	frame.pack();
-	 	return frame;
+	 	add(imgPanel);
+	 	setBounds(10, 10, 1000, 650);
+	 	pack();
+	 	setVisible(true);
+	    
 	}
 	
+	/*
 	public void setImagePath(String path) {
 		this.imagePath = path;
-	}
+	} */
 
 }
