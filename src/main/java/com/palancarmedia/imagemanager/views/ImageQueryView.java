@@ -99,6 +99,10 @@ public class ImageQueryView extends JInternalFrame {
 	 	String AWSSecretKey="";
 	 	
 	 	JComboBox<String> modelList = new JComboBox<String>();
+	 	List<String> modelsList = GetImageInfo.getEntityList("getModelNames", null);
+	 	
+	 	modelsList.forEach(i -> modelList.addItem(i));
+	 	/*
 	 	modelList.addItem("Niemira");
 	 	modelList.addItem("Candice B");
 	 	modelList.addItem("Sofi A");
@@ -121,7 +125,8 @@ public class ImageQueryView extends JInternalFrame {
 	 	modelList.addItem("Danielle Gamba");
 	 	modelList.addItem("Alyssa Arce");
 	 	modelList.addItem("Celebrities");
-	 	modelList.addItem("Kate Brenner");
+	 	modelList.addItem("Kate Brenner"); */
+	 	
 	 	modelList.setBounds(10, 15, 125, 25);
 	 	
 	 	JComboBox<String> ratingList = new JComboBox<String>();
