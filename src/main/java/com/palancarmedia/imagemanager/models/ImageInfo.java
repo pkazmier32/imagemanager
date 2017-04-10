@@ -1,4 +1,4 @@
-package com.palancarmedia.models;
+package com.palancarmedia.imagemanager.models;
 
 public class ImageInfo {
 	

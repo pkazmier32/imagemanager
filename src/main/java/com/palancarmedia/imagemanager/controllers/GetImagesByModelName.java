@@ -1,4 +1,4 @@
-package com.palancarmedia.controllers;
+package com.palancarmedia.imagemanager.controllers;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -16,8 +16,8 @@ import java.lang.reflect.Type;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.palancarmedia.imagemanager.models.ImageInfo;
 import com.palancarmedia.imagemanager.views.SendInfoView;
-import com.palancarmedia.models.ImageInfo;
 
 public class GetImagesByModelName {
 	

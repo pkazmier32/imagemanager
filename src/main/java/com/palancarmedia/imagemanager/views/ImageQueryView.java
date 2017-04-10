@@ -47,8 +47,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
-import com.palancarmedia.controllers.GetImagesByModelName;
-import com.palancarmedia.models.ImageInfo;
+import com.palancarmedia.imagemanager.controllers.GetImageInfo;
+import com.palancarmedia.imagemanager.controllers.GetImagesByModelName;
+import com.palancarmedia.imagemanager.models.ImageInfo;
 
 public class ImageQueryView extends JInternalFrame {
 	
@@ -101,7 +102,13 @@ public class ImageQueryView extends JInternalFrame {
 	 	modelList.addItem("Sofi A");
 	 	modelList.addItem("Ashlynn Letizzia");
 	 	modelList.addItem("MetArt");
+	 	modelList.addItem("FemJoy");
 	 	modelList.addItem("Carlotta Champagne");
+	 	modelList.addItem("Julie Clarke");
+	 	modelList.addItem("Jamie Graham");
+	 	modelList.addItem("Playboy");
+	 	modelList.addItem("Playmates");
+	 	modelList.addItem("Coeds");
 	 	modelList.setBounds(10, 15, 125, 25);
 	 	
 	 	JComboBox ratingList = new JComboBox();
@@ -158,9 +165,8 @@ public class ImageQueryView extends JInternalFrame {
 	 	pnlImage.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(pnlImage.getBackground().darker(), pnlImage.getBackground().brighter()), "Image"));
 	 	
 	 	
-	 	JButton btnQuery = new JButton("Send Query");
-	 	
-	 	btnQuery.setBounds(10, 450, 125, 25);
+	 	JButton btnQuery = new JButton("Query Model+Rating");
+	 	btnQuery.setBounds(10, 90, 125, 25);
 	 	
 	 	btnQuery.addActionListener(new ActionListener()
 		{
@@ -175,6 +181,34 @@ public class ImageQueryView extends JInternalFrame {
 				imgsController.setBaseURL("http://palancarmediasolutions.com/FitnessLog2/images");
 				//List<ImageInfo> imgList = imgsController.getImageInfo("Niemira", 5);
 				List<ImageInfo> imgList = imgsController.getImageInfo(modelName, Integer.parseInt(modelRating));
+				
+				for (ImageInfo ii : imgList) {
+					Object[] rowData = new Object[5];
+				 	rowData[0] = ii.getModelName();
+				 	rowData[1] = ii.getSeriesName();
+				 	rowData[2] = ii.getImageRating();
+				 	rowData[4] = ii.getBucketName();
+				 	rowData[3] = ii.getImageKey();
+				 	
+				 	m_Model.addRow(rowData);
+				}
+				//	imgList.forEach(ii -> logger.debug(ii.toString()));
+			}
+		});
+	 	
+	 	JButton btnLast30 = new JButton("Last 30");
+	 	btnLast30.setBounds(10, 120, 125, 25);
+	 	
+	 	btnLast30.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				while (m_Model.getRowCount() > 0)
+				{
+					m_Model.removeRow(0);
+				}
+				
+				List<ImageInfo> imgList = GetImageInfo.getImageInfo("getLast30ImagesAdded", null);
 				
 				for (ImageInfo ii : imgList) {
 					Object[] rowData = new Object[5];
@@ -282,6 +316,7 @@ public class ImageQueryView extends JInternalFrame {
 	 	pnlCriteria.add(btnQuery);
 	 	pnlCriteria.add(modelList);
 	 	pnlCriteria.add(ratingList);
+	 	pnlCriteria.add(btnLast30);
 	 	
 	    JScrollPane spResults = new JScrollPane(table);
 	    spResults.setBounds(5, 8, 530, 200);
