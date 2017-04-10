@@ -10,10 +10,11 @@ public class ImageInfo {
 	private int modelId;
 	private String bucketName;
 	private String imageKey;
+	private String tagName;
 	
 	private static String S3URI = "http://s3.amazonaws.com/";
 	
-	public ImageInfo(long imageId, String modelName, String seriesName, String imagePath, int imageRating, int modelId) {
+	public ImageInfo(long imageId, String modelName, String seriesName, String imagePath, int imageRating, int modelId, String tagName) {
 		
 		this.imageId = imageId;
 		this.modelName = modelName;
@@ -21,6 +22,7 @@ public class ImageInfo {
 		this.imagePath = imagePath;
 		this.imageRating = imageRating;
 		this.modelId = modelId;
+		this.tagName = tagName;
 		
 		bucketName = this.imagePath.substring(this.imagePath.indexOf("/", S3URI.length()), this.imagePath.indexOf("/", S3URI.length())+1);
 		imageKey = this.imagePath.substring(S3URI.length() + this.bucketName.length() + 2);
@@ -83,6 +85,14 @@ public class ImageInfo {
 		this.imageKey = imageKey;
 	}
 	
+	public String getTagName() {
+		return this.tagName;
+	}
+	
+	public void setTagName(String tag) {
+		this.tagName = tag;
+	}
+	
 	@Override
 	public String toString() {
 		
@@ -93,6 +103,7 @@ public class ImageInfo {
 		sb.append(" ImageRating: ").append(this.imageRating);
 		sb.append(" BucketName: ").append(getBucketName());
 		sb.append(" ImageKey: ").append(getImageKey());
+		sb.append(" TagName: ").append(getTagName());
 		
 		return sb.toString();
 	}

@@ -13,8 +13,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.imageio.ImageIO;
@@ -50,6 +52,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.palancarmedia.imagemanager.controllers.GetImageInfo;
 import com.palancarmedia.imagemanager.controllers.GetImagesByModelName;
 import com.palancarmedia.imagemanager.models.ImageInfo;
+import com.palancarmedia.imagemanager.utils.PropertiesFileHelper;
 
 public class ImageQueryView extends JInternalFrame {
 	
@@ -59,8 +62,9 @@ public class ImageQueryView extends JInternalFrame {
 	int selectedRowIndex=0;
 	DefaultTableModel m_Model = new DefaultTableModel();
     JTable table = new JTable(m_Model);
-    String modelName="";
-    String modelRating="";
+    String modelName="Niemira";
+    String modelRating="0";
+    String tagName="Shower";
 	
 	public ImageQueryView() {
 		
@@ -91,17 +95,16 @@ public class ImageQueryView extends JInternalFrame {
 		TableColumnModel columnModel = table.getColumnModel();
 		columnModel.getColumn(2).setPreferredWidth(25);
 		
-		Properties prop = new Properties();
-	 	InputStream input = null;
 	 	String AWSKeyId="";
 	 	String AWSSecretKey="";
 	 	
-	 	JComboBox modelList = new JComboBox();
+	 	JComboBox<String> modelList = new JComboBox<String>();
 	 	modelList.addItem("Niemira");
 	 	modelList.addItem("Candice B");
 	 	modelList.addItem("Sofi A");
 	 	modelList.addItem("Ashlynn Letizzia");
 	 	modelList.addItem("MetArt");
+	 	modelList.addItem("Met-Art");
 	 	modelList.addItem("FemJoy");
 	 	modelList.addItem("Carlotta Champagne");
 	 	modelList.addItem("Julie Clarke");
@@ -109,14 +112,42 @@ public class ImageQueryView extends JInternalFrame {
 	 	modelList.addItem("Playboy");
 	 	modelList.addItem("Playmates");
 	 	modelList.addItem("Coeds");
+	 	modelList.addItem("Pretty Girls");
+	 	modelList.addItem("Traci Levine");
+	 	modelList.addItem("Cali Logan");
+	 	modelList.addItem("Jessica Workman");
+	 	modelList.addItem("Christi Nicole Taylor");
+	 	modelList.addItem("FTV Girls");
+	 	modelList.addItem("Danielle Gamba");
+	 	modelList.addItem("Alyssa Arce");
+	 	modelList.addItem("Celebrities");
+	 	modelList.addItem("Kate Brenner");
 	 	modelList.setBounds(10, 15, 125, 25);
 	 	
-	 	JComboBox ratingList = new JComboBox();
+	 	JComboBox<String> ratingList = new JComboBox<String>();
 	 	ratingList.addItem("0");
 	 	ratingList.addItem("4");
 	 	ratingList.addItem("5");
 	 	ratingList.addItem("6");
 	 	ratingList.setBounds(10, 55, 125, 25);
+	 	
+	 	JComboBox<String> tagList = new JComboBox<String>();
+	 	tagList.addItem("Shower");
+	 	tagList.addItem("Beach");
+	 	tagList.addItem("Boobs!");
+	 	tagList.addItem("Butts!");
+	 	tagList.addItem("Beaver!");
+	 	tagList.addItem("Blonde");
+	 	tagList.addItem("Brunette");
+	 	tagList.addItem("Playmate");
+	 	tagList.addItem("Bikini");
+	 	tagList.addItem("Outside");
+	 	tagList.addItem("My Favorites");
+	 	tagList.addItem("In Bed");
+	 	tagList.addItem("Lingerie");
+	 	tagList.addItem("Daily Doubles");
+	 	tagList.addItem("Cyber Girl");
+	 	tagList.setBounds(10, 150, 125, 25);
 	 	
 	 	modelList.addActionListener(new ActionListener()
 		{
@@ -136,21 +167,19 @@ public class ImageQueryView extends JInternalFrame {
 			}
 		});
 	 	
-	 	
-		String filename = "app.properties";
-		input = S3ImageViewer.class.getClassLoader().getResourceAsStream(filename);
-		if(input==null) {
-	       System.out.println("Sorry, unable to find " + filename);
-		} else {
-			try  {
-			    prop.load(input);
-				AWSKeyId = prop.getProperty("AWSAccessKeyID");
-				AWSSecretKey=prop.getProperty("AWSSecretKey");
-			} catch (Exception ex) {
-				logger.error("Failed to read AWS properties");
+	 	tagList.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JComboBox o = (JComboBox)e.getSource();
+				tagName = (String)o.getSelectedItem();
 			}
-			
-		}
+		});
+		
+		PropertiesFileHelper prop = new PropertiesFileHelper();
+		AWSKeyId = prop.getPropertyValue("AWSAccessKeyID");
+		AWSSecretKey=prop.getPropertyValue("AWSSecretKey");
+		
 		BasicAWSCredentials creds = new BasicAWSCredentials(AWSKeyId, AWSSecretKey);
 	 	AmazonS3 s3Client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(creds)).withRegion(Regions.US_EAST_1).build();
 	 	
@@ -164,8 +193,7 @@ public class ImageQueryView extends JInternalFrame {
 	 	pnlImage.setBounds(160, 225, 550, 250);
 	 	pnlImage.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(pnlImage.getBackground().darker(), pnlImage.getBackground().brighter()), "Image"));
 	 	
-	 	
-	 	JButton btnQuery = new JButton("Query Model+Rating");
+	 	JButton btnQuery = new JButton("Model+Rating");
 	 	btnQuery.setBounds(10, 90, 125, 25);
 	 	
 	 	btnQuery.addActionListener(new ActionListener()
@@ -220,7 +248,37 @@ public class ImageQueryView extends JInternalFrame {
 				 	
 				 	m_Model.addRow(rowData);
 				}
-				//	imgList.forEach(ii -> logger.debug(ii.toString()));
+				
+			}
+		});
+	 	
+	 	JButton btnByTagName = new JButton("By Tag Name");
+	 	btnByTagName.setBounds(10, 180, 125, 25);
+	 	
+	 	btnByTagName.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent event)
+			{
+				while (m_Model.getRowCount() > 0)
+				{
+					m_Model.removeRow(0);
+				}
+				
+				Set<String> params = new HashSet<String>();
+				params.add(tagName);
+				List<ImageInfo> imgList = GetImageInfo.getImageInfo("getImagesByTagName", params);
+				
+				for (ImageInfo ii : imgList) {
+					Object[] rowData = new Object[5];
+				 	rowData[0] = ii.getModelName();
+				 	rowData[1] = ii.getSeriesName();
+				 	rowData[2] = ii.getImageRating();
+				 	rowData[4] = ii.getBucketName();
+				 	rowData[3] = ii.getImageKey();
+				 	
+				 	m_Model.addRow(rowData);
+				}
+				
 			}
 		});
 	 	
@@ -243,7 +301,6 @@ public class ImageQueryView extends JInternalFrame {
                 	
                 	pnlImage.invalidate();
                 	pnlImage.repaint();
-                	//pnlMain.remove(pnlImage);
                 	
                 	pack();
                     setSize(750, 550);
@@ -262,9 +319,7 @@ public class ImageQueryView extends JInternalFrame {
             	    InputStream objectData = s3Object.getObjectContent();
             	    
                     try {
-                    	//File iFile = new File("c:\\temp\\imgs\\Test11_1.jpg");
-                        
-                    	//srcImage = ImageIO.read(iFile);
+                    	
 						img = ImageIO.read(objectData);
 						
 						Image resizedImage = img.getScaledInstance(jp.getWidth(), jp.getHeight(), Image.SCALE_SMOOTH);
@@ -272,8 +327,7 @@ public class ImageQueryView extends JInternalFrame {
 						if (resizedImage != null) {
 							
 							JLabel imgLbl = new JLabel(new ImageIcon(resizedImage));
-	                        //imgLbl.repaint();
-							
+	                        
 	                        jp.add(imgLbl);
 	                        pnlImage.add(jp);
 	                        pnlImage.revalidate();
@@ -283,7 +337,6 @@ public class ImageQueryView extends JInternalFrame {
 						}
 					} catch (IOException e1) {
 						logger.debug("Not an image file");
-						//e1.printStackTrace();
 					}
                     
                 }
@@ -299,16 +352,10 @@ public class ImageQueryView extends JInternalFrame {
         		        		
         		JTable t = (JTable)e.getSource();
         		DefaultTableModel tm = (DefaultTableModel) t.getModel();
-            	//Object bkt = tm.getValueAt(selectedRowIndex, 4);
                 Object imgkey = tm.getValueAt(selectedRowIndex, 3);
                 
                  if(e.getKeyCode()==KeyEvent.VK_ENTER) {
-        			
-                	//JDesktopPane dsk = (JDesktopPane)getContentPane().getParent();
                 	S3ImageViewer vw = new S3ImageViewer(imgkey.toString());
-                	//vw.setImagePath(imgkey.toString());
-                	//dsk.add(vw.createView());
-                	
         		}
             }
         });
@@ -317,17 +364,17 @@ public class ImageQueryView extends JInternalFrame {
 	 	pnlCriteria.add(modelList);
 	 	pnlCriteria.add(ratingList);
 	 	pnlCriteria.add(btnLast30);
+	 	pnlCriteria.add(tagList);
+	 	pnlCriteria.add(btnByTagName);
 	 	
 	    JScrollPane spResults = new JScrollPane(table);
 	    spResults.setBounds(5, 8, 530, 200);
-	    //spResults.setPreferredSize(new Dimension(200,200));
 	    
 	 	JPanel pnlResults = new JPanel();
 	 	pnlResults.setLayout(null);
 	 	pnlResults.setBounds(160, 5, 550, 210);
 	 	//pnlResults.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(pnlResults.getBackground().darker(), pnlResults.getBackground().brighter()), "Results"));
 	 	pnlResults.add(spResults);
-	 	
 	 	
 	 	JLabel statusbar = new JLabel(" ");
 	    statusbar.setBounds(0, 495, 700, 22);
