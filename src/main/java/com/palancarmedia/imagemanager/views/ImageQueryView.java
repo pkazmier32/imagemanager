@@ -137,7 +137,7 @@ public class ImageQueryView extends JInternalFrame {
 	 	tagList.addItem("Boobs!");
 	 	tagList.addItem("Butts!");
 	 	tagList.addItem("Beaver!");
-	 	tagList.addItem("Blonde");
+	 	tagList.addItem("Blond");
 	 	tagList.addItem("Brunette");
 	 	tagList.addItem("Playmate");
 	 	tagList.addItem("Bikini");
