@@ -40,6 +40,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileSystemView;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -167,17 +168,28 @@ public class ImageViewerView {
         	
         });
         
-	 	DefaultMutableTreeNode root = new DefaultMutableTreeNode("C:\\");
-	 	
-	 	try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get("c:\\"), path -> path.toFile().isDirectory())) {
-	 		for (Path file : ds) {
-	 			DefaultMutableTreeNode dirName = new DefaultMutableTreeNode(file.getFileName());
-	 			root.add(dirName );
-	 		}
-	 	} catch (Exception e1) {
-			logger.error(e1.getLocalizedMessage());
-		}
-	 	
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Workstation");
+        File[] paths;
+        FileSystemView fsv = FileSystemView.getFileSystemView();
+        paths = File.listRoots();
+        for (File pth:paths) {
+        	
+            DefaultMutableTreeNode drive = new DefaultMutableTreeNode(pth);
+            
+            try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get(pth.toURI()), path -> path.toFile().isDirectory())) {
+    	 		for (Path file : ds) {
+    	 			DefaultMutableTreeNode dirName = new DefaultMutableTreeNode(file.getFileName());
+    	 			//root.add(dirName );
+    	 			drive.add(dirName);
+    	 			root.add(drive);
+    	 		}
+    	 	} catch (Exception e1) {
+    			logger.error(e1.getLocalizedMessage());
+    		}
+            
+        }
+        
+        
 	 	DefaultTreeModel treeModel = new DefaultTreeModel(root);
 	 	JTree tree = new JTree(treeModel);
 	 	int mode = TreeSelectionModel.SINGLE_TREE_SELECTION;
@@ -186,22 +198,22 @@ public class ImageViewerView {
 	 	Vector<Vector> rowData = new Vector<Vector>();
 	 		 		 	
 	 	tree.addTreeSelectionListener(event -> {
+	 		
 	 		TreePath path = tree.getSelectionPath();
 	 		if (path == null) return;
 	 		
 	 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
-	 		Path pth = (Path)selectedNode.getUserObject();
 	 		
 	 		StringBuilder sPath = new StringBuilder();
 	 		for (Object o : path.getPath()) {
-	 			sPath.append(o.toString()).append("\\");
+	 			if (!o.toString().equalsIgnoreCase("Workstation"))
+	 				sPath.append(o.toString()).append("\\");
 	 		}
 	 		currentPath = sPath.toString();
 	 		File f = new File(sPath.toString());
 		 	URI u = f.toURI();
 		 			
-	 		//logger.debug(sPath.toString());
-	 		
+	 		//logger.debug("sPath: " + sPath.toString());
 	 		try (DirectoryStream<Path> ds = Files.newDirectoryStream(Paths.get(u))) {
 		 		rowData.clear();
 		 		numberOfRows=0;
