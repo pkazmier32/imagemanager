@@ -100,6 +100,7 @@ public class ImageViewerView {
 	    statusbar.setPreferredSize(new Dimension(-1, 22));
 	    statusbar.setBorder(LineBorder.createGrayLineBorder());
 	    frame.add(statusbar, BorderLayout.SOUTH);
+	    JPanel jsp = new JPanel();
 	    
         menuItem.addActionListener(new ActionListener() {
 
@@ -201,6 +202,8 @@ public class ImageViewerView {
 	 		
 	 		TreePath path = tree.getSelectionPath();
 	 		if (path == null) return;
+	 		if (jsp.getComponentCount() > 0)
+            	jsp.removeAll();
 	 		
 	 		DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) path.getLastPathComponent();
 	 		
@@ -274,7 +277,7 @@ public class ImageViewerView {
 	    fileListPanel.add(fileListPane);
 		c.add(fileListPanel, BorderLayout.CENTER);
 	 	
-	    JPanel jsp = new JPanel();
+	    
 	    jsp.setLayout(null);
 	 //	jsp.setPreferredSize(new Dimension(300,300));
         fileListPanel.add(jsp);
