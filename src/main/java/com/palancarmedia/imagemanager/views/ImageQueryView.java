@@ -102,30 +102,6 @@ public class ImageQueryView extends JInternalFrame {
 	 	List<String> modelsList = GetImageInfo.getEntityList("getModelNames", null);
 	 	
 	 	modelsList.forEach(i -> modelList.addItem(i));
-	 	/*
-	 	modelList.addItem("Niemira");
-	 	modelList.addItem("Candice B");
-	 	modelList.addItem("Sofi A");
-	 	modelList.addItem("Ashlynn Letizzia");
-	 	modelList.addItem("MetArt");
-	 	modelList.addItem("Met-Art");
-	 	modelList.addItem("FemJoy");
-	 	modelList.addItem("Carlotta Champagne");
-	 	modelList.addItem("Julie Clarke");
-	 	modelList.addItem("Jamie Graham");
-	 	modelList.addItem("Playboy");
-	 	modelList.addItem("Playmates");
-	 	modelList.addItem("Coeds");
-	 	modelList.addItem("Pretty Girls");
-	 	modelList.addItem("Traci Levine");
-	 	modelList.addItem("Cali Logan");
-	 	modelList.addItem("Jessica Workman");
-	 	modelList.addItem("Christi Nicole Taylor");
-	 	modelList.addItem("FTV Girls");
-	 	modelList.addItem("Danielle Gamba");
-	 	modelList.addItem("Alyssa Arce");
-	 	modelList.addItem("Celebrities");
-	 	modelList.addItem("Kate Brenner"); */
 	 	
 	 	modelList.setBounds(10, 15, 125, 25);
 	 	

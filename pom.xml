@@ -99,7 +99,7 @@
 					<addClasspath>true</addClasspath>
 					<classpathPrefix>libs/</classpathPrefix>
 					<mainClass>
-						com.palancarmedia.ImageManagerMain
+						com.palancarmedia.imagemanager.ImageManagerMain
 					</mainClass>
 				</manifest>
 			</archive>
